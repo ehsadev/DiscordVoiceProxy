@@ -1,0 +1,12 @@
+[project]
+name = "discord-voice-proxy-manager"
+version = "1.0.0"
+description = "Windows GUI manager for runetfreedom/discord-voice-proxy"
+requires-python = ">=3.12"
+dependencies = [
+  "PySide6>=6.8,<7",
+  "httpx>=0.27,<1",
+]
+
+[project.scripts]
+discord-voice-proxy-manager = "app.main:main"
