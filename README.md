@@ -1,6 +1,6 @@
 # Discord Voice Proxy Manager
 
-A PySide6 Windows GUI manager for the official <a href="https://github.com/runetfreedom/discord-voice-proxy">`runetfreedom/discord-voice-proxy`</a> release. It does not implement or rebuild the proxy DLLs.
+A PySide6 Windows GUI manager for the official <a href="https://github.com/runetfreedom/discord-voice-proxy" target="_blank">`runetfreedom/discord-voice-proxy`</a> release. It does not implement or rebuild the proxy DLLs.
 
 
 <img width="822" height="792" alt="image" src="https://github.com/user-attachments/assets/17d74797-bb82-40f8-9f5a-5b9b84d2c7a6" />
