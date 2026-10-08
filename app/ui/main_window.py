@@ -1,8 +1,9 @@
 import logging
 from pathlib import Path
 
-from PySide6.QtCore import QThreadPool, Qt
-from PySide6.QtGui import QPixmap
+from PySide6.QtCore import QThreadPool, Qt, QUrl
+from PySide6.QtGui import QPixmap, QDesktopServices
+
 from PySide6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
@@ -273,6 +274,11 @@ class MainWindow(QMainWindow):
         # Copyright
         # =========================
         self.copywrite = QLabel("DevByEhsan 2026 - Licensed under MIT")
+        self.copywrite.setCursor(Qt.PointingHandCursor)
+
+        self.copywrite.mousePressEvent = lambda event: QDesktopServices.openUrl(
+            QUrl("https://github.com/ehsadev/DiscordVoiceProxy")
+        )
         self.copywrite.setObjectName("copywrite")
 
         layout.addWidget(self.copywrite)
