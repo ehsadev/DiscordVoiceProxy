@@ -2,6 +2,11 @@
 
 A PySide6 Windows GUI manager for the official `runetfreedom/discord-voice-proxy` release. It does not implement or rebuild the proxy DLLs.
 
+
+<img width="822" height="792" alt="image" src="https://github.com/user-attachments/assets/17d74797-bb82-40f8-9f5a-5b9b84d2c7a6" />
+
+
+
 ## Run from source
 
 ```powershell
