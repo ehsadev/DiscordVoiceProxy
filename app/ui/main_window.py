@@ -238,9 +238,9 @@ class MainWindow(QMainWindow):
                 background-color: #246B3A;
             }
         """)
-
-        launch.addWidget(self.normal)
-        launch.addWidget(self.with_proxy)
+        # TODO : fix this operetaions
+        # launch.addWidget(self.normal)
+        # launch.addWidget(self.with_proxy)
 
         layout.addLayout(launch)
 
@@ -307,6 +307,7 @@ class MainWindow(QMainWindow):
         self.status.setText("Status: " + msg)
 
     def refresh(self):
+        self.set_busy(True, "Refreshing status…")
         inst = self.discord.get_installation()
         running = self.discord.is_discord_running()
         rt = self.dotnet_service.status()
@@ -352,6 +353,7 @@ class MainWindow(QMainWindow):
             )
         )
         self.dotnet_button.setEnabled(not rt.installed)
+        self.set_busy(False, "Ready")
 
     def run_worker(self, fn, done=None, msg="Working…"):
         self.set_busy(True, msg)
