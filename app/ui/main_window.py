@@ -1,8 +1,8 @@
-import time
 import logging
 from pathlib import Path
 
-from PySide6.QtCore import QThreadPool
+from PySide6.QtCore import QThreadPool, Qt
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
@@ -21,6 +21,7 @@ from app.services.discord_service import DiscordService
 from app.services.dotnet_service import DotNetService
 from app.services.launcher_service import LauncherService
 from app.services.proxy_service import ProxyService
+from app.utils.paths import resource_path
 
 from .proxy_config import ProxyConfigWidget
 from .status_card import StatusCard
@@ -45,34 +46,90 @@ class MainWindow(QMainWindow):
     def _build(self):
         root = QWidget()
         self.setCentralWidget(root)
+
         layout = QVBoxLayout(root)
         layout.setContentsMargins(28, 24, 28, 24)
         layout.setSpacing(16)
+
+        # =========================
+        # Header
+        # =========================
+        header = QHBoxLayout()
+        header.setSpacing(12)
+
+        # Title + Subtitle
+        text_layout = QVBoxLayout()
+        text_layout.setSpacing(4)
+
         title = QLabel("Discord Voice Proxy Manager")
         title.setObjectName("Title")
+
         sub = QLabel("Route Discord voice traffic through a SOCKS5 proxy")
         sub.setObjectName("Subtitle")
-        layout.addWidget(title)
-        layout.addWidget(sub)
+
+        text_layout.addWidget(title)
+        text_layout.addWidget(sub)
+
+        # Logo
+        logo = QLabel()
+        logo.setFixedSize(68, 68)
+        logo.setAlignment(Qt.AlignCenter)
+
+        pixmap = QPixmap(str(resource_path("assets/icon.png")))
+
+        if not pixmap.isNull():
+            logo.setPixmap(
+                pixmap.scaled(
+                    180,
+                    180,
+                    Qt.KeepAspectRatio,
+                    Qt.SmoothTransformation,
+                )
+            )
+
+        header.addLayout(text_layout)
+        header.addStretch()
+        header.addWidget(logo)
+
+        layout.addLayout(header)
+
+        # =========================
+        # Status Cards
+        # =========================
         cards = QHBoxLayout()
+
         self.discord_card = StatusCard("DISCORD")
         self.runtime_card = StatusCard(".NET 8 RUNTIME")
         self.proxy_card = StatusCard("PROXY")
+
         cards.addWidget(self.discord_card)
         cards.addWidget(self.runtime_card)
         cards.addWidget(self.proxy_card)
+
         layout.addLayout(cards)
+
+        # =========================
+        # Proxy Configuration
+        # =========================
         group = QGroupBox("Proxy Configuration")
+
         gl = QVBoxLayout(group)
+
         self.config = ProxyConfigWidget()
+
         gl.addWidget(self.config)
+
         layout.addWidget(group)
+
+        # =========================
+        # Proxy Actions
+        # =========================
         actions = QHBoxLayout()
+
         self.install = QPushButton("Install Proxy")
         self.remove = QPushButton("Remove Proxy")
         self.recheck = QPushButton("Recheck Status")
-        self.normal = QPushButton("Launch Discord Normally")
-        self.with_proxy = QPushButton("Launch Discord With Proxy")
+
         self.install.setStyleSheet("""
             QPushButton {
                 background-color: #5865F2;
@@ -82,13 +139,16 @@ class MainWindow(QMainWindow):
                 padding: 10px 16px;
                 font-weight: 600;
             }
+
             QPushButton:hover {
                 background-color: #4752C4;
             }
+
             QPushButton:pressed {
                 background-color: #3C45A5;
             }
         """)
+
         self.remove.setStyleSheet("""
             QPushButton {
                 background-color: #ED4245;
@@ -98,9 +158,11 @@ class MainWindow(QMainWindow):
                 padding: 10px 16px;
                 font-weight: 600;
             }
+
             QPushButton:hover {
                 background-color: #C73537;
             }
+
             QPushButton:pressed {
                 background-color: #A82B2D;
             }
@@ -115,75 +177,119 @@ class MainWindow(QMainWindow):
                 padding: 10px 16px;
                 font-weight: 600;
             }
+
             QPushButton:hover {
                 background-color: #5D626A;
             }
+
             QPushButton:pressed {
                 background-color: #40444B;
             }
         """)
 
-        # self.normal.setStyleSheet("""
-        #     QPushButton {
-        #         background-color: #2F3136;
-        #         color: #FFFFFF;
-        #         border: 1px solid #4F545C;
-        #         border-radius: 8px;
-        #         padding: 10px 16px;
-        #         font-weight: 600;
-        #     }
-        #     QPushButton:hover {
-        #         background-color: #40444B;
-        #     }
-        #     QPushButton:pressed {
-        #         background-color: #292B2F;
-        #     }
-        # """)
-
-        # self.with_proxy.setStyleSheet("""
-        #     QPushButton {
-        #         background-color: #3BA55D;
-        #         color: white;
-        #         border: none;
-        #         border-radius: 8px;
-        #         padding: 10px 16px;
-        #         font-weight: 600;
-        #     }
-        #     QPushButton:hover {
-        #         background-color: #2D8548;
-        #     }
-        #     QPushButton:pressed {
-        #         background-color: #246B3A;
-        #     }
-        # """)
         actions.addWidget(self.install)
         actions.addWidget(self.remove)
         actions.addWidget(self.recheck)
+
         layout.addLayout(actions)
+
+        # =========================
+        # Launch Discord
+        # =========================
         launch = QHBoxLayout()
+
+        self.normal = QPushButton("Launch Discord Normally")
+        self.with_proxy = QPushButton("Launch Discord With Proxy")
+
+        self.normal.setStyleSheet("""
+            QPushButton {
+                background-color: #2F3136;
+                color: #FFFFFF;
+                border: 1px solid #4F545C;
+                border-radius: 8px;
+                padding: 10px 16px;
+                font-weight: 600;
+            }
+
+            QPushButton:hover {
+                background-color: #40444B;
+            }
+
+            QPushButton:pressed {
+                background-color: #292B2F;
+            }
+        """)
+
+        self.with_proxy.setStyleSheet("""
+            QPushButton {
+                background-color: #3BA55D;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 10px 16px;
+                font-weight: 600;
+            }
+
+            QPushButton:hover {
+                background-color: #2D8548;
+            }
+
+            QPushButton:pressed {
+                background-color: #246B3A;
+            }
+        """)
 
         launch.addWidget(self.normal)
         launch.addWidget(self.with_proxy)
+
         layout.addLayout(launch)
+
+        # =========================
+        # .NET Runtime
+        # =========================
         self.dotnet_button = QPushButton("Install .NET 8 Runtime")
         self.dotnet_button.setObjectName("Secondary")
+
         layout.addWidget(self.dotnet_button)
+
+        # =========================
+        # Progress
+        # =========================
         self.progress = QProgressBar()
         self.progress.setVisible(False)
         self.progress.setRange(0, 100)
+
         layout.addWidget(self.progress)
+
+        # =========================
+        # Status
+        # =========================
         self.status = QLabel("Status: Ready")
         self.status.setObjectName("StatusBar")
+
         layout.addWidget(self.status)
+
+        # =========================
+        # Copyright
+        # =========================
         self.copywrite = QLabel("DevByEhsan 2026 - Licensed under MIT")
         self.copywrite.setObjectName("copywrite")
+
         layout.addWidget(self.copywrite)
+
+        # =========================
+        # Signals
+        # =========================
         self.install.clicked.connect(self.install_proxy)
         self.remove.clicked.connect(self.remove_proxy)
         self.recheck.clicked.connect(self.refresh)
+
         self.normal.clicked.connect(lambda: self.launch(False))
+
         self.with_proxy.clicked.connect(lambda: self.launch(True))
+
         self.config.detect.clicked.connect(self.detect_proxy)
+
         self.dotnet_button.clicked.connect(self.install_dotnet)
 
     def set_busy(self, busy, msg):
